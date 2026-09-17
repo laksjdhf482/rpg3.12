@@ -86,7 +86,7 @@ let money=saved?.money??0,stage=saved?.stage??0,moneyLevel=saved?.moneyLevel??0,
 function fmt(n){return Math.floor(n).toLocaleString("ko-KR")+"원"}
 function cost(l){return Math.floor(1000*Math.pow(1.5,l))}
 function moneyBonus(){return 1000+Math.floor(Math.max(0,moneyLevel-1)/5)*500}
-function doubleMultiplier(){return doubleLevel>=1?2:1}
+function doubleMultiplier(){return doubleLevel>0?2:1}
 function gainPerTouch(){return moneyBonus()*doubleMultiplier()}
 function save(){localStorage.setItem("beggar_rpg_save",JSON.stringify({money,stage,moneyLevel,doubleLevel,cleared,lotteryResult}))}
 function render(){
@@ -102,7 +102,7 @@ let audioCtx=null;
 function playCoin(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC;if(audioCtx.state==="suspended")audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime;o.type="sine";o.frequency.setValueAtTime(900,t);o.frequency.exponentialRampToValueAtTime(1400,t+.055);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.20,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+.13);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.14)}catch(e){}}
 function earn(ev){
  if(ev.target.closest("#shop,#shopButton"))return;if(cleared)return;if(ev.pointerType==="mouse"&&ev.button!==0)return;ev.preventDefault();
- const gain=gainPerTouch();money+=gain;const r=game.getBoundingClientRect();const x=Math.max(18,Math.min(r.width-18,ev.clientX-r.left)),y=Math.max(18,Math.min(r.height-25,ev.clientY-r.top));
+ const gain=Math.floor(moneyBonus() * (doubleLevel>0 ? 2 : 1));money+=gain;const r=game.getBoundingClientRect();const x=Math.max(18,Math.min(r.width-18,ev.clientX-r.left)),y=Math.max(18,Math.min(r.height-25,ev.clientY-r.top));
  const f=document.createElement("div");f.className="float";f.textContent="+"+fmt(gain);f.style.left=x+"px";f.style.top=y+"px";game.appendChild(f);setTimeout(()=>f.remove(),760);
  playCoin();checkStage();save();render()
 }
